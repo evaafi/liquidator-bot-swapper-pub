@@ -51,6 +51,7 @@ function tokenInfo(token: string): ApiTokenAddress {
  * @param maxSlippage max slippage coefficient
  * @param walletAddress wallet address
  * @param maxLength max number of jettons in the exchange route
+ * @param referralName referral name for bonuses and rewards
  * @returns array of messages
  */
 export async function fetchSwapMessages(
@@ -58,7 +59,8 @@ export async function fetchSwapMessages(
     tokenOffer: string, tokenAsk: string,
     amount: number,
     maxSlippage: number,
-    maxLength: number
+    maxLength: number,
+    referralName?: string
 ): Promise<FetchSwapMessagesResult> {
     const routingApi = new RoutingApi();
 
@@ -88,6 +90,7 @@ export async function fetchSwapMessages(
         sender_address: walletAddress,
         slippage: maxSlippage,
         paths: steps,
+        referral_name: referralName,
     });
 
     const targetTransactions = transactions?.data?.transactions;
@@ -112,14 +115,17 @@ export async function highloadExchange(
     params: SwapParams
 ): Promise<HighloadExchangeResult> {
     console.log(`highloadExchange SwapParams:`, params);
+    const {
+        tokenOffer, tokenAsk, swapAmount,
+        maxSlippage, maxLength,
+        referralName
+    } = params;
 
     let fetchResult = await fetchSwapMessages(
         highloadWallet.address.toString(),
-        params.tokenOffer,
-        params.tokenAsk,
-        params.swapAmount,
-        params.maxSlippage,
-        params.maxLength
+        tokenOffer, tokenAsk, swapAmount,
+        maxSlippage, maxLength,
+        referralName
     );
 
     console.debug("FETCHED MESSAGES: ", fetchResult.messages);

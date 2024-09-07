@@ -57,6 +57,9 @@ const config = {
         swapper: "SWAPPER: ",
         maintenance: "MAINTENANCE: ",
     },
+    referral: {
+        token: 'evaa',
+    }
 }
 
 const isAssetSupported = (assetId: bigint) => {
@@ -85,7 +88,8 @@ async function doSingleSwap(task: SwapTask, wallet: HighloadWalletV2, db: MyData
         tokenAsk: assetAsk.address.toString(),
         swapAmount: assetOffer.fromWei(task.swapAmount),
         maxSlippage: config.swapper.maxSlippage ?? limits.max_slippage,
-        maxLength: limits.max_swap_length
+        maxLength: limits.max_swap_length,
+        referralName: config.referral.token,
     }
 
     const swapDescription = makeTaskDescription(task, assetsCollection);
@@ -148,25 +152,33 @@ async function serveTracker(db: MyDatabase, bot: any, assetsCollection: AssetsCo
         }
 
         if (res === TransactionStatus.Succeeded) { // swap finished, full success
-            bot.sendMessage(`${config.prefix.tracker} Swap task ${swapDescription} has succeeded!`);
+            const message =`${config.prefix.tracker} Swap task ${swapDescription} has succeeded!`;
+            console.log(message);
+            bot.sendMessage(message);
             await db.succeedTask(task.id, TransactionStatus.Succeeded);
             continue;
         }
 
-        if ((res & TransactionStatus.Succeeded) !== 0) { // partial success, some failed or timed out
-            bot.sendMessage(`${config.prefix.tracker} Swap task ${swapDescription} has partially succeeded!`);
+        if ((res & TransactionStatus.PartiallyComplete) !== 0) { // partial success, some failed or timed out
+            const message = `${config.prefix.tracker} Swap task ${swapDescription} has partially succeeded!`;
+            console.log(message);
+            bot.sendMessage(message);
             await db.succeedTask(task.id, res); // discussible, what status it should become
             continue;
         }
 
         if ((res & TransactionStatus.TimedOut) !== 0) { // timeout or partially fail
-            bot.sendMessage(`${config.prefix.tracker} Swap task ${swapDescription} has timed out!`);
+            const message = `${config.prefix.tracker} Swap task ${swapDescription} has timed out!`;
+            console.log(message);
+            bot.sendMessage(message);
             await db.timeoutTask(task.id, res);
             continue;
         }
 
         if ((res & (TransactionStatus.Failed | TransactionStatus.Unknown)) !== 0) {
-            bot.sendMessage(`${config.prefix.tracker} Swap task ${swapDescription} has failed!`);
+            const message =`${config.prefix.tracker} Swap task ${swapDescription} has failed!`;
+            console.log(message);
+            bot.sendMessage(message);
             await db.failTask(task.id, res);
         }
     }

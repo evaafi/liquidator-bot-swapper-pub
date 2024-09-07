@@ -24,6 +24,7 @@ export type SwapParams = {
     swapAmount: number,     // amount of tokens without decimals e.g. 1.2345 
     maxSlippage: number,    // maximum slippage coefficient, e.g. 0.03 stands for 3%
     maxLength: number,      // maximum number of path points, mubst be in [2, 5]  ( >= 2 and <= 5 )
+    referralName?: string,  // optional referral name
 }
 
 export type ParsedSwapResult = {
