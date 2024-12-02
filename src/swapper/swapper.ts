@@ -8,11 +8,13 @@ import {
     RoutingApi,
     waitForTransactionResults
 } from "@swap-coffee/sdk";
-import {checkDefined, notDefined, retry} from "../util";
+import {checkDefined, notDefined} from "../lib/util";
 
 import {FetchSwapMessagesResult, HighloadExchangeResult, ParsedSwapResult, SwapMessage, SwapParams} from "./types";
 import {TransactionStatus} from './helpers';
-import {HighloadWalletV2} from "../highload/highload_contract";
+import {HighloadWalletV2} from "../lib/highload_contract_v2";
+import {retry} from "../lib/retry";
+import {logMessage} from "../lib/messenger";
 
 // TODO: refactor swapper, make centralized RoutingApi creation, use api key
 
@@ -72,7 +74,7 @@ export async function fetchSwapMessages(
         throw new Error(`Max length value must be in [2, 5], provided value ${maxLength} is not valid`);
     }
 
-    console.debug("FETCH MESSAGES: BUILD ROUTE");
+    logMessage("FETCH MESSAGES: BUILD ROUTE");
 
     const route = await routingApi.buildRoute({
         input_token: tokenInfo(tokenOffer),
@@ -81,7 +83,7 @@ export async function fetchSwapMessages(
         max_length: maxLength,
     });
 
-    console.debug("FETCH MESSAGES: BUILD TRANSACTIONS");
+    logMessage("FETCH MESSAGES: BUILD TRANSACTIONS");
 
     const steps: ApiRoutingStep[] = route?.data?.paths;
     checkDefined(steps, "Swap API returned no path")
@@ -99,7 +101,7 @@ export async function fetchSwapMessages(
     const route_id: number = transactions?.data?.route_id;
     checkDefined(route_id, "No route_id fetched, probably server error");
 
-    console.debug("TRANSFORM MESSAGES");
+    logMessage("TRANSFORM MESSAGES");
     const messages: SwapMessage[] = targetTransactions.map(transformMessage);
 
     return {messages, route_id};
@@ -114,7 +116,7 @@ export async function highloadExchange(
     highloadWallet: HighloadWalletV2,
     params: SwapParams
 ): Promise<HighloadExchangeResult> {
-    console.log(`highloadExchange SwapParams:`, params);
+    // console.log(`highloadExchange SwapParams:`, params);
     const {
         tokenOffer, tokenAsk, swapAmount,
         maxSlippage, maxLength,
@@ -128,10 +130,11 @@ export async function highloadExchange(
         referralName
     );
 
-    console.debug("FETCHED MESSAGES: ", fetchResult.messages);
+    // console.debug("FETCHED MESSAGES: ", fetchResult.messages);
 
     const dictionary = fetchResult.messages
-        .map(composeInternalMessage).reduce(
+        .map(composeInternalMessage)
+        .reduce(
             (prev, curr, index) => prev.set(index, curr),
             Dictionary.empty<number, Cell>()
         );
@@ -180,7 +183,7 @@ export async function checkSwapResult(routeId: number): Promise<number> {
     );
 
     if (!res.ok) {
-        console.log("Either no data on route or service is off");
+        logMessage(`Either no data on route or service is off`);
         return TransactionStatus.TimedOut;
     }
 

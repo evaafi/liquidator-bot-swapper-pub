@@ -1,10 +1,20 @@
 import {Address, beginCell, Cell, ContractProvider, Dictionary, TonClient} from "@ton/ton";
-import {makeQueryId, retry} from "../util";
 import {KeyPair, sign} from "@ton/crypto";
+import {retry} from "./retry";
+import crypto from "crypto";
 
 const HIGHLOAD_CODE_V2: Cell = Cell.fromBase64('te6ccgEBCQEA5QABFP8A9KQT9LzyyAsBAgEgAgMCAUgEBQHq8oMI1xgg0x/TP/gjqh9TILnyY+1E0NMf0z/T//QE0VNggED0Dm+hMfJgUXO68qIH+QFUEIf5EPKjAvQE0fgAf44WIYAQ9HhvpSCYAtMH1DAB+wCRMuIBs+ZbgyWhyEA0gED0Q4rmMQHIyx8Tyz/L//QAye1UCAAE0DACASAGBwAXvZznaiaGmvmOuF/8AEG+X5dqJoaY+Y6Z/p/5j6AmipEEAgegc30JjJLb/JXdHxQANCCAQPSWb6VsEiCUMFMDud4gkzM2AZJsIeKz');
 const ATTEMPTS_NUMBER: number = 3;
 const ATTEMPTS_INTERVAL: number = 1000;
+
+export function makeQueryId(): bigint {
+    const queryID = crypto.randomBytes(4).readUint32BE();
+    const now = Math.floor(Date.now() / 1000);
+    const timeout = 60;
+    const finalQueryID = (BigInt(now + timeout) << 32n) + BigInt(queryID);
+
+    return finalQueryID;
+}
 
 export class HighloadWalletV2 {
     _tonClient: TonClient;

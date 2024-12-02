@@ -12,7 +12,7 @@ export type AssetInfoType = {
 
 export class AssetInfo {
     private readonly _symbol: string;
-    private readonly _decimals: bigint;
+    private readonly _scale: bigint;
     private readonly _id: bigint;
     private readonly _isNative: boolean;
     private readonly _address: Address | string;
@@ -29,8 +29,8 @@ export class AssetInfo {
         return this._symbol;
     }
 
-    get decimals(): bigint {
-        return this._decimals;
+    get scale(): bigint {
+        return this._scale;
     }
 
     get id(): bigint {
@@ -38,16 +38,16 @@ export class AssetInfo {
     }
 
     fromWei(amount: bigint): number {
-        return (new Decimal(_str(amount)).dividedBy(new Decimal(_str(this._decimals)))).toNumber();
+        return (new Decimal(_str(amount)).dividedBy(new Decimal(_str(this._scale)))).toNumber();
     }
 
     toWei(amount: number | string): bigint {
-        return _bigint(_decimal(amount).mul(_decimal(this.decimals)).toString()).valueOf();
+        return _bigint(_decimal(amount).mul(_decimal(this.scale)).toString()).valueOf();
     }
 
     constructor(info: AssetInfoType) {
         this._symbol = info.symbol;
-        this._decimals = info.decimals;
+        this._scale = info.decimals;
         this._id = info.id;
         this._address = info.address;
         this._isNative = info.isNative;
@@ -78,11 +78,11 @@ export class AssetsCollection {
         return Array.from(this._assetsById.keys());
     }
 
-    byAssetName(assetName: string): AssetInfo {
+    byAssetName(assetName: string): AssetInfo | undefined {
         return this._assetsByName.get(assetName.toLowerCase());
     }
 
-    byAssetId(assetId: bigint): AssetInfo {
+    byAssetId(assetId: bigint): AssetInfo | undefined {
         return this._assetsById.get(assetId);
     }
 }

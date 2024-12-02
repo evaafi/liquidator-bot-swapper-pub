@@ -1,9 +1,9 @@
 import {configDotenv} from "dotenv";
-import {loadString, printBalances, printProperties} from "../../util";
+import {loadString, printBalances, printProperties} from "../../lib/util";
 import {Address, TonClient} from "@ton/ton";
 import {EXTENDED_ASSET_LIST} from "../../config";
-import {EXTENDED_ASSETS_COLLECTION_MAINNET, JETTON_MASTERS_MAINNET} from '../../assets';
-import {getBalances, getUserWallet, normalizeBalances} from "../../balances";
+import {ASSETS_COLLECTION_MAINNET, JETTON_MASTERS_MAINNET} from '../../assets';
+import {getBalances, getUserWallet, normalizeBalances} from "../../lib/balances";
 
 /**
  * This code has no side effects, feel free to run this demonstration
@@ -22,7 +22,7 @@ import {getBalances, getUserWallet, normalizeBalances} from "../../balances";
         apiKey: config.tonRpcToken
     });
 
-    const assetsCollection = EXTENDED_ASSETS_COLLECTION_MAINNET;
+    const assetsCollection = ASSETS_COLLECTION_MAINNET;
     const assetsList = EXTENDED_ASSET_LIST;
     const jettonMasters = JETTON_MASTERS_MAINNET;
     const highloadAddress: Address = Address.parse(config.highloadAddress);

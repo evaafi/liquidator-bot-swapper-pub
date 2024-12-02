@@ -1,7 +1,7 @@
 import {configDotenv} from "dotenv";
-import {loadString, makeTaskDescription} from "../../util";
+import {loadString, makeTaskDescription} from "../../lib/util";
 import {MyDatabase} from "../../database/database";
-import {EXTENDED_ASSETS_COLLECTION_MAINNET} from "../../assets";
+import {ASSETS_COLLECTION_MAINNET} from "../../assets";
 import {SwapTask} from "../../database/types";
 
 
@@ -12,7 +12,7 @@ import {SwapTask} from "../../database/types";
     }
     const db: MyDatabase = new MyDatabase(config.dbPath);
     await db.init();
-    const assetsCollection = EXTENDED_ASSETS_COLLECTION_MAINNET;
+    const assetsCollection = ASSETS_COLLECTION_MAINNET;
     const makeDescription = (s: SwapTask) => makeTaskDescription(s, assetsCollection);
     console.log("STATES: ", await db.getSwapStates());
     console.log("PENDING SWAPS: ", (await db.getPendingSwaps()).map(makeDescription));

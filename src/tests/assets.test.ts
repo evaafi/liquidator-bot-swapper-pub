@@ -2,7 +2,7 @@
 
 import {describe, it} from "node:test";
 import {EXTENDED_ASSET_LIST} from "../config";
-import {EXTENDED_ASSETS_COLLECTION_MAINNET} from "../assets";
+import {ASSETS_COLLECTION_MAINNET} from "../assets";
 import {expect} from 'chai';
 
 function assetByName(assetName: string): bigint {
@@ -35,7 +35,7 @@ function assetByName(assetName: string): bigint {
 describe('Test assets module', () => {
     it('all assets exist', () => {
         EXTENDED_ASSET_LIST.forEach(assetName => {
-            const asset = EXTENDED_ASSETS_COLLECTION_MAINNET.byAssetName(assetName);
+            const asset = ASSETS_COLLECTION_MAINNET.byAssetName(assetName);
             expect(assetByName(assetName)).to.eq(asset.id);
         })
     });

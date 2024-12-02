@@ -1,5 +1,5 @@
 import {configDotenv} from "dotenv";
-import {loadString} from "../../util";
+import {loadString} from "../../lib/util";
 import {MyDatabase} from "../../database/database";
 
 

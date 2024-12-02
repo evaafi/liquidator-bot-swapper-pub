@@ -17,7 +17,8 @@ function transformSwapTask(row: any): SwapTask {
         routeID: row.route_id ?? 0,
         queryID: BigInt(row.query_id ?? 0),
         state: row.state,
-        status: parseInt(row.status)
+        status: parseInt(row.status),
+        pricesCell: row.prices_cell ?? '',
     };
 }
 
@@ -39,6 +40,9 @@ export class MyDatabase {
         this.dbPath = dbPath;
     }
 
+    /**
+     * Initializes swap_tasks table
+     */
     async init() {
         this.db = await open({
             filename: this.dbPath,
@@ -53,21 +57,36 @@ export class MyDatabase {
                 token_offer VARCHAR NOT NULL,
                 token_ask VARCHAR NOT NULL,
                 swap_amount VARCHAR NOT NULL,
-                query_id VARCHAR,
-                route_id VARCHAR,
+                query_id VARCHAR NOT NULL DEFAULT '0',
+                route_id VARCHAR NOT NULL DEFAULT '0',
                 state VARCHAR NOT NULL DEFAULT 'pending',
-                status INTEGER NOT NULL DEFAULT 0
+                status INTEGER NOT NULL DEFAULT 0,
+                prices_cell VARCHAR NOT NULL DEFAULT ''
             )
-        `)
+        `); // no prices ('') means that value check will not be done
     }
 
-    async addSwapTask(createdAt: number, tokenOffer: bigint, tokenAsk: bigint, swapAmount: bigint) {
-        await this.db.run(`
-            INSERT INTO swap_tasks(created_at, updated_at, token_offer, token_ask, swap_amount) 
-            VALUES(?, ?, ?, ?, ?)
-        `, createdAt, createdAt, tokenOffer.toString(), tokenAsk.toString(), swapAmount.toString())
+    /**
+     * Adds a swap task to database
+     * @param createdAt task creation time
+     * @param tokenOffer token to swap from
+     * @param tokenAsk token to swap to
+     * @param swapAmount amount of offered token
+     * @param pricesCell cell with prices and oracles info form evaa.getPrices()
+     */
+    async addSwapTask(createdAt: number, tokenOffer: bigint, tokenAsk: bigint, swapAmount: bigint, pricesCell: string) {
+        await this.db.run(`INSERT INTO swap_tasks 
+            (created_at, updated_at, token_offer, token_ask, swap_amount, prices_cell) 
+            VALUES(?, ?, ?, ?, ?, ?)`,
+            createdAt, createdAt, tokenOffer.toString(), tokenAsk.toString(), swapAmount.toString(), pricesCell)
     }
 
+    /**
+     * Updates task state and status to inform that task was sent and should be tracked
+     * @param id task id
+     * @param queryID updated query id
+     * @param routeID updated route id
+     */
     async takeSwapTask(id: number, queryID: bigint, routeID: number) {
         console.log("ARGS: ", id, queryID, routeID);
         await this.db.run(`
@@ -77,6 +96,11 @@ export class MyDatabase {
         `, SwapState.Sent, TransactionStatus.Pending, Date.now(), queryID.toString(), routeID, id)
     }
 
+    /**
+     * Updates task state and status to inform that task has succeeded
+     * @param id task id
+     * @param status task status
+     */
     async succeedTask(id: number, status: number) {
         await this.db.run(`
             UPDATE swap_tasks 
@@ -85,6 +109,11 @@ export class MyDatabase {
         `, SwapState.Success, status, Date.now(), id);
     }
 
+    /**
+     * Updates task to inform that timeout was reached
+     * @param id task id
+     * @param status task status
+     */
     async timeoutTask(id: number, status: number) {
         await this.db.run(`
             UPDATE swap_tasks 
@@ -93,6 +122,11 @@ export class MyDatabase {
         `, SwapState.Timeout, status, Date.now(), id);
     }
 
+    /**
+     * Updates task to inform that it failed
+     * @param id task id
+     * @param status task failure status (more details)
+     */
     async failTask(id: number, status: number) {
         await this.db.run(`
             UPDATE swap_tasks 
@@ -101,6 +135,10 @@ export class MyDatabase {
         `, SwapState.Failed, status, Date.now(), id);
     }
 
+    /**
+     * Cancels task
+     * @param id task id
+     */
     async cancelTask(id: number) {
         await this.db.run(`
             UPDATE swap_tasks 
@@ -109,6 +147,11 @@ export class MyDatabase {
         `, SwapState.Canceled, TransactionStatus.InProcess, Date.now(), id);
     }
 
+    /**
+     * @returns tasks by state
+     * @param state task state
+     * @param num max number of tasks to return
+     */
     async getSwapsByState(state: string, num: number = null): Promise<SwapTask[]> {
         let results: any;
         if (typeof num === 'number') {
@@ -127,14 +170,26 @@ export class MyDatabase {
         return results.map(transformSwapTask);
     }
 
+    /**
+     * @returns pending tasks
+     * @param num max number of tasks to return
+     */
     async getPendingSwaps(num: number = null) {
         return await this.getSwapsByState(SwapState.Pending, num);
     }
 
+    /**
+     * @returns sent tasks
+     * @param num max number of tasks to return
+     */
     async getSentSwaps(num: number = null) {
         return await this.getSwapsByState(SwapState.Sent, num);
     }
 
+    /**
+     * @returns processed tasks
+     * @param num max number of tasks to return
+     */
     async getProcessedSwaps(num: number = null) {
         let results: any;
         if (typeof num === 'number') {
@@ -154,6 +209,9 @@ export class MyDatabase {
         return results.map(transformSwapTask);
     }
 
+    /**
+     * @returns list of distinct tasks states, for debugging purposes
+     */
     async getSwapStates() {
         const result = await this.db.all(`SELECT DISTINCT state FROM swap_tasks`);
         if (!result) return [];

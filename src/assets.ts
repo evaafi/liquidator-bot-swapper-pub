@@ -1,6 +1,6 @@
-import {checkDefined, sha256Hash} from "./util";
+import {checkDefined, sha256Hash} from "./lib/util";
 import {Address} from "@ton/ton";
-import {AssetInfo, AssetsCollection} from "./assets_collection";
+import {AssetInfo, AssetsCollection} from "./lib/assets_collection";
 
 export const JETTON_MASTERS_MAINNET = {
     ton: 'native',
@@ -59,16 +59,6 @@ function makeAssetInfo(assetSymbol: string): AssetInfo {
     });
 }
 
-
-const ASSETS = {
-    ton: makeAssetInfo('ton'),
-    jusdt: makeAssetInfo('jusdt'),
-    jusdc: makeAssetInfo('jusdc'),
-    stton: makeAssetInfo('stton'),
-    tston: makeAssetInfo('tston'),
-    usdt: makeAssetInfo('usdt'),
-}
-
 const EXTENDED_ASSETS = {
     ton: makeAssetInfo('ton'),
     jusdt: makeAssetInfo('jusdt'),
@@ -82,5 +72,4 @@ const EXTENDED_ASSETS = {
     usdt_storm: makeAssetInfo('usdt_storm'),
 }
 
-export const ASSETS_COLLECTION_MAINNET = new AssetsCollection(ASSETS);
-export const EXTENDED_ASSETS_COLLECTION_MAINNET = new AssetsCollection(EXTENDED_ASSETS);
+export const ASSETS_COLLECTION_MAINNET = new AssetsCollection(EXTENDED_ASSETS);

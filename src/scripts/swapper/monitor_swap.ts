@@ -1,9 +1,9 @@
 import {checkSwapResult} from "../../swapper/swapper";
-import {getBalances, getUserWallets} from "../../balances";
-import {loadAddress, loadString, printProperties} from "../../util";
+import {getBalances, getUserWallets} from "../../lib/balances";
+import {loadAddress, loadString, printProperties} from "../../lib/util";
 import {configDotenv} from "dotenv";
 import {Address, TonClient} from "@ton/ton";
-import {EXTENDED_ASSETS_COLLECTION_MAINNET} from "../../assets";
+import {ASSETS_COLLECTION_MAINNET} from "../../assets";
 
 configDotenv();
 
@@ -25,7 +25,7 @@ const config = {
     console.log("CREATED TON CLIENT");
     const assetNamesList = ['jusdt', 'usdt'];
     const highloadAddress = Address.parse(config.highloadAddress);
-    const jettonWallets = await getUserWallets(tonClient, highloadAddress, EXTENDED_ASSETS_COLLECTION_MAINNET);
+    const jettonWallets = await getUserWallets(tonClient, highloadAddress, ASSETS_COLLECTION_MAINNET);
 
     let checkInProcess = false;
     const monitorInterval = setInterval(async () => {
@@ -38,7 +38,7 @@ const config = {
         console.log(Math.floor(Date.now() / 1000), " RES: ", res);
 
         const highloadBalances = await getBalances(
-            tonClient, highloadAddress, EXTENDED_ASSETS_COLLECTION_MAINNET, jettonWallets
+            tonClient, highloadAddress, ASSETS_COLLECTION_MAINNET, jettonWallets
         );
         printProperties(highloadBalances, "property");
 

@@ -11,9 +11,11 @@ import {
 import {KeyPair, mnemonicToWalletKey} from "@ton/crypto";
 import {configDotenv} from "dotenv";
 
-import {bufferToBigInt, loadString, sleep} from "../../util";
+import {bufferToBigInt, loadString, sleep} from "../../lib/util";
+import {Cell} from "@ton/core";
 
-import {HIGHLOAD_CODE_V2, SUBWALLET_ID} from "../../config";
+export const SUBWALLET_ID = 698983191;
+export const HIGHLOAD_CODE_V2 = Cell.fromBase64('te6ccgEBCQEA5QABFP8A9KQT9LzyyAsBAgEgAgMCAUgEBQHq8oMI1xgg0x/TP/gjqh9TILnyY+1E0NMf0z/T//QE0VNggED0Dm+hMfJgUXO68qIH+QFUEIf5EPKjAvQE0fgAf44WIYAQ9HhvpSCYAtMH1DAB+wCRMuIBs+ZbgyWhyEA0gED0Q4rmMQHIyx8Tyz/L//QAye1UCAAE0DACASAGBwAXvZznaiaGmvmOuF/8AEG+X5dqJoaY+Y6Z/p/5j6AmipEEAgegc30JjJLb/JXdHxQANCCAQPSWb6VsEiCUMFMDud4gkzM2AZJsIeKz');
 
 async function deployHighload(client: TonClient, wallet: OpenedContract<WalletContractV4>, subwallet_id: number, keys: KeyPair) {
 

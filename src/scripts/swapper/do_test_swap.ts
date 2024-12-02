@@ -2,15 +2,15 @@
  * This code makes a swap of tokens in provided highload wallet
  */
 import {configDotenv} from "dotenv";
-import {loadAddress, loadString, printProperties} from "../../util";
+import {loadAddress, loadString, printProperties} from "../../lib/util";
 import {mnemonicToWalletKey} from "@ton/crypto";
 import {Address, TonClient} from "@ton/ton";
 import {checkSwapResult, highloadExchange} from "../../swapper/swapper";
 import {HighloadExchangeResult, SwapParams} from "../../swapper/types";
-import {getBalances, getUserWallets} from "../../balances";
-import {HighloadWalletV2} from "../../highload/highload_contract";
+import {getBalances, getUserWallets} from "../../lib/balances";
+import {HighloadWalletV2} from "../../lib/highload_contract_v2";
 import {getSwapLimits, MAX_SLIPPAGE} from "../../config";
-import {ASSET_ID, EXTENDED_ASSETS_COLLECTION_MAINNET} from "../../assets";
+import {ASSET_ID, ASSETS_COLLECTION_MAINNET} from "../../assets";
 
 configDotenv();
 
@@ -43,7 +43,7 @@ const config = {
     const highloadAddress = Address.parse(config.highloadAddress);
     const highloadContract = new HighloadWalletV2(tonClient, highloadAddress, keys);
 
-    const assetsCollection = EXTENDED_ASSETS_COLLECTION_MAINNET;
+    const assetsCollection = ASSETS_COLLECTION_MAINNET;
     const limits = getSwapLimits(config.assetOfferId, config.assetAskId);
     const getAssetAddress = (assetId: bigint): string => assetsCollection.byAssetId(assetId).address.toString();
     const assetOfferAddress = getAssetAddress(config.assetOfferId);

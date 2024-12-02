@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "jest --verbose"
+    "test": "jest --verbose",
+    "start": "ts-node src/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -28,11 +29,11 @@
     "@ton/core": "^0.56.3",
     "@ton/crypto": "^3.2.0",
     "@ton/ton": "^13.11.2",
-    "axios": "^1.7.2",
+    "axios": "1.7.4",
+    "crypto-js": "^4.2.0",
     "decimal.js": "^10.4.3",
     "dotenv": "^16.4.5",
     "ethereumjs-util": "^7.1.5",
-    "grammy": "^1.25.2",
     "sort-deep-object-arrays": "^1.1.2",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7"

@@ -11,6 +11,7 @@ export type SwapTask = {
     queryID: bigint;
     state: string;
     status: number;
+    pricesCell: string;
 }
 
 export type GetResult = {
@@ -18,12 +19,3 @@ export type GetResult = {
     stack: TupleReader;
     exit_code: number;
 };
-
-export type UserPrincipals = {
-    ton: bigint,
-    jusdt: bigint,
-    jusdc: bigint,
-    stton: bigint,
-    tston: bigint,
-    usdt: bigint
-}

@@ -1,4 +1,4 @@
-import { retry } from '../../util';
+import {retry} from "../../lib/retry";
 
 (async () => {
     {

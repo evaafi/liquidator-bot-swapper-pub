@@ -1,7 +1,8 @@
 import {Address, Dictionary, TonClient, TupleBuilder} from "@ton/ton";
-import {checkAddressState, isDefined, retry} from "./util";
-import {ASSET_ID} from "./assets";
+import {checkAddressState, isDefined} from "./util";
+import {ASSET_ID} from "../assets";
 import {AssetsCollection} from "./assets_collection";
+import {retry} from "./retry";
 
 export type WalletBalances = Dictionary<bigint, bigint>;
 export type NormalizedWalletBalances = Dictionary<bigint, number>;
@@ -19,7 +20,7 @@ export function normalizeBalances(balances: WalletBalances, assetsCollection: As
 
     balances.keys().forEach(id => {
         const assetBalance = parseFloat(balances.get(id).toString());
-        const assetDecimals = parseFloat(assetsCollection.byAssetId(id).decimals.toString());
+        const assetDecimals = parseFloat(assetsCollection.byAssetId(id).scale.toString());
         normalized.set(id, assetBalance / assetDecimals);
     });
 
